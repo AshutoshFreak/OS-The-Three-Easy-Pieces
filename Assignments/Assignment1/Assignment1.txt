@@ -1,0 +1,78 @@
+Q1. Xinu Process Control Block
+
+
+Most of XINU's kernel code can be found in system/ and include/ (header files). Some configuration related parameters can be found in config/. Inside the system/ subdirectory, you will find the bulk of relevant XINU source code. The file start.S contains assembly code that is executed after XINU loads on a backend. After performing bootstrap/initialization chores (the details are not relevant at this time), a call to function nulluser() in initialize.c is made. At some point, nulluser() calls sysinit() (also in initialize.c). Jump to the code of sysinit() where updates to the data structure proctab[] are made which represents XINU's process table.
+
+In XINU, as well as in Linux/UNIX and Windows, a process table is one of the key data structures of an operating system where bookkeeping of all created processes is performed.
+
+A. Do some detective work to get the process table definition of Xinu.
+B. Each process in Xinu has a state. In how many states a process can be in its lifetime?
+
+
+
+
+
+
+
+
+Q2. Xinu Code Modification
+
+
+When a backend machine bootstraps and performs initialization, there is as yet no notion of a "process." That is, the hardware just executes a sequence of machine instructions compiled by gcc on a frontend Linux PC for our target backend vitualbox x86 CPU (i.e., the binary xinu.xbin). This includes machine code translated from initialize.c. nulluser() in initialize.c calls sysinit() which sets up the process table data structure proctab[] which keeps track of relevant information about created processes that have not terminated. When a process terminates, its entry is freed in proctab[]. After allocating the proctab[] data structure to hold up to NPROC processes, sysinit() creates the first process, called the NULL (or idle) process. This NULL process which exists not only in XINU but also in Linux/UNIX and Windows is the ancestor of all other processes in the system. It is the only process that is not created by the system call create() but is "handcrafted" during system initialization. At some point, nulluser() calls create() where the first argument, startup, is a function pointer to startup() whose code is contained in initialize.c. System call create() finds a free entry in proctab[] and creates a new process. In XINU, all processes created using create() start off in a suspended state which means they are not assigned to the CPU. The system call resume() changes the state of a newly created process to a ready state which allows it to compete with other ready processes for CPU cycle allocation. In our version of XINU, the only task performed by startup() is to create (and resume) a process running the function main() whose code is in main.c.
+
+A. Since creating a process running startup() adds overhead, create a process that runs main() from nulluser() directly. This will be your first modification of XINU which changes the source code in initialize.c. After making the change to nulluser(), verify that it works correctly. Any time changes to XINU or application processes running under XINU are made, XINU must be rebuilt on a front-end machine and reloaded on a backend machine.
+
+B. Modify the main() function such that each time the user tries to exit the terminal by passing the command "exit" from minicom, the shell is recreated and shows the number of times it is recreated. Like, if the shell is given "exit" command for four consecutive times, it will print "Main process recreating shell. Counter=5".
+
+Submission Notes------------------------------------------
+
+    Attach the modified file(s) of the xinu source code along with a valid naming convention.
+    Do mention the working directory as C comment so that the TAs can know the exact location where it should be pasted for evaluation. For example, add a line in your modified C file "/* file belongs to xinu/system/ */" or "/* file belongs to xinu/include/ */"
+
+
+
+
+
+
+Q3. Explain the event in Ashutosh's question @17 of multiple processes contending for the standard input using the watch command.
+
+The following are command parameters used in the class demonstration:
+
+ 
+
+watch -n .1 'ps -l -t <tty-name> -f --forest'
+
+ 
+
+You are allowed to modify it.
+
+ 
+
+    Which process adopts the child process when its parent is killed?
+    Is this a special process?
+    Is it always the same process?
+    Explain your observation.
+
+ 
+
+
+
+
+Q4. Recall the strace command shown in class. The following was the command line:
+
+sudo strace  -f -p <pid> -e trace=read,write,fork,clone
+
+Write a simple program in your favorite language and strace its execution on bash. You are allowed to modify the command inputs.
+
+ 
+
+
+
+
+Q5. Write a short on monolithic and micro-kernels.
+ 
+
+Submission guide-lines:
+
+
+You can submit your solutions like a blog-post using a pdf generated from Dropbox Paper or LaTeX.  Use proper screen-shots to explain whenever necessary. Any source can be submitted along with the pdf in a single compressed zip file using nfile naming convention.
