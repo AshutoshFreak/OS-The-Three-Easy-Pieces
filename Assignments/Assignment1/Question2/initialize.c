@@ -1,4 +1,4 @@
-/* This file is the solution to Question 1 in Assignment 1. It belongs to ~/xinu/system */
+/* This file is the solution to Question 2 in Assignment 1. It belongs to ~/xinu/system */
 
 /* initialize.c - nulluser, sysinit */
 
