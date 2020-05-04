@@ -1,0 +1,48 @@
+Assignment 2 (Q1)
+
+Q1.  The Linux proc interface
+
+A man page query for proc will give you the following description of this very useful interface:
+
+proc - process information pseudo-filesystem
+
+The proc filesystem is a pseudo-filesystem which provides an interface to kernel data structures.
+
+
+Go through the man page and find out the contents of the  /proc/[pid]/ directory.
+
+a) Your first task is to write a shell script to parse the contents of /proc/[pid]/statm file.
+
+/proc/[pid]/statm   -- Provides information about memory usage, measured in pages.
+
+
+The script should generate a well formatted report with the details of the contents of the file. Note: The more details you provide, the better marks you get.
+
+> Name of the script: mem_usage
+
+> It should take one argument: the pid of the process
+
+b) You have to wite a parameterized program in c to show how the values in the statm file change as you change the parameters in the program.
+
+[Hint: The parameters will have something to do with the stack/heap]
+
+[Hint: You can use the sleep() from unistd.h to keep your process from terminating so that you can analyze the statm file.]
+
+c) Write a shell script to generate a c program which allows you to verify the change in code-size through the statm file.
+
+
+
+
+
+
+
+
+
+
+
+Q3.  Using the knowledge you gathered in Q1 and Q2 show a real-time memory manipulation.
+
+    You have to write a primary program that is on a loop.
+    Next write a secondary program that manipulates (modifies the content of) the memory (stack/heap) of the primary program using proc interface.
+    The change in memory must be reflected by the change in behaviour (possibly but not limited to a changed output).
+    You may slow down the primary program so that the change in output is visually verifiable.

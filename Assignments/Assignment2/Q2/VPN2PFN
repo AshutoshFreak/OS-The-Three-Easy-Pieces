@@ -1,0 +1,38 @@
+#!/bin/bash
+
+abcd=''
+
+get_PFN () {
+	maps_path="/proc/$1/pagemap"
+	if [ ! -f "$maps_path" ]; then
+		echo "Process $1 does not exist"
+		exit 1
+	fi
+	page_size=$(getconf PAGESIZE)
+	pagemap_entry_size=8
+	offset=$(($2/$page_size*$pagemap_entry_size))
+	size=8
+	entry=$(sudo xxd -p -l $size -s $offset $maps_path)
+	entry=0x$(echo -n $entry | rev | dd conv=swab 2> /dev/null)
+	pfn=$((entry & 0x7FFFFFFFFFFFFF))
+}
+
+pid=$1
+addr=$2
+if [ $(echo ${addr:0:2}) = '0x' ];
+then
+	# Convert to dec
+	addr=$(echo "obase=10; ibase=16; ${addr:2}" | bc)
+fi
+
+get_PFN $pid $addr
+present=$(((entry & (1 << 63)) != 0))
+swapped=$(((entry & (1 << 62)) != 0))
+filepage=$(((entry & (1 << 61)) != 0))
+softdirty=$(((entry & (1 << 55)) != 0))
+bool=(False True)
+printf 'PFN: %X\n' $pfn
+echo "Is Present? : ${bool[$present]}"
+echo "Is Page Swapped? : ${bool[$swapped]}"
+echo "Is File Page? : ${bool[$filepage]}"
+echo "Is Soft Dirty? : ${bool[$softdirty]}"

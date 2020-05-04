@@ -1,0 +1,26 @@
+#!/bin/bash
+pid=$1
+vpns=($(awk -F '-' '{print $1}' /proc/$pid/maps))
+unset 'vpns[${#vpns[@]}-1]'
+maps_path="/proc/$pid/pagemap"
+if [ ! -f "$maps_path" ]; then
+	echo "Process $1 does not exist"
+	exit 1
+fi
+for i in "${vpns[@]}"
+do
+	temp=${i^^}
+	addr=$(echo "obase=10; ibase=16; $temp" | bc)
+	page_size=$(getconf PAGESIZE)
+	pagemap_entry_size=8
+	offset=$(($addr/$page_size*$pagemap_entry_size))
+	size=8
+	entry=$(xxd -p -l $size -s $offset $maps_path)
+	entry=0x$(echo -n $entry | rev | dd conv=swab 2> /dev/null)
+	pfn=$((entry & 0x7FFFFFFFFFFFFF))
+	if [ ! $pfn = 0 ];
+	then
+		echo "VPN: $temp      PFN: $pfn"
+	fi
+	# printf 'VPN: %X \t PFN: %X' $temp $pfn
+done 
